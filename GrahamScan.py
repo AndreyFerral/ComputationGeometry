@@ -10,7 +10,8 @@ class Window(QtWidgets.QWidget):
         super().__init__()
         self.setWindowTitle("Многоугольник алгоритмом Грэхема")
         self.setFont(QtGui.QFont('Arial', 12))
-        self.resize(500, 300) 
+        max_x, max_y = 500, 300
+        self.resize(max_x, max_y)
 
         # Верхний layout
         self.label_dots = QtWidgets.QLabel("Количество точек")
@@ -19,9 +20,9 @@ class Window(QtWidgets.QWidget):
         self.slider.setTickPosition(QtWidgets.QSlider.TickPosition.TicksAbove)
         self.build = QtWidgets.QPushButton("Построить")
         self.up_layout = QtWidgets.QHBoxLayout()
-        self.up_layout.addWidget(self.label_dots, stretch=3)
-        self.up_layout.addWidget(self.slider, stretch=3)
-        self.up_layout.addWidget(self.build, stretch=3)
+        self.up_layout.addWidget(self.label_dots, stretch=1)
+        self.up_layout.addWidget(self.slider, stretch=1)
+        self.up_layout.addWidget(self.build, stretch=1)
 
         # layout для рисования
         self.print = QtWidgets.QLabel()
@@ -33,10 +34,10 @@ class Window(QtWidgets.QWidget):
 
         # Нижний layout
         self.dot = QtWidgets.QPushButton("Вхождение")
-        self.label_result = QtWidgets.QLabel("Результат:")
+        self.label_result = QtWidgets.QLabel()
         self.down_layout = QtWidgets.QHBoxLayout()
-        self.down_layout.addWidget(self.label_result, stretch=6)
-        self.down_layout.addWidget(self.dot, stretch=3)
+        self.down_layout.addWidget(self.label_result, stretch=2)
+        self.down_layout.addWidget(self.dot, stretch=1)
 
         # Отображение созданных layout
         self.main_layout = QtWidgets.QVBoxLayout(self)
@@ -53,21 +54,20 @@ class Window(QtWidgets.QWidget):
         # Очищаем canvas от лишнего
         self.canvas.fill(QtGui.QColor("white"))
         self.print.setPixmap(self.canvas)
-        self.label_result.setText("Результат:")
+        self.label_result.clear()
         # Вызываем функцию рисования многоугольника
         count = self.slider.value()
         self.graham_scan(count)
 
     # Обработки кнопки определения вхождения точки
     def dot_entry_clicked(self): 
-        path = Window.path
-        if not path:
-            self.label_result.setText("Результат: Необходим многоугольник!")
+        if not Window.path:
+            self.label_result.setText("Необходим многоугольник!")
             return
         # Очищаем canvas от лишнего
         self.canvas.fill(QtGui.QColor("white"))
         self.print.setPixmap(self.canvas)
-        self.horizontal_beam(path)
+        self.horizontal_beam(Window.path)
 
     def get_limit_coords(self):
         min_xy = 10
@@ -105,10 +105,10 @@ class Window(QtWidgets.QWidget):
         # Рисуем сгенерированную точку
         if count_intersection%2 == 0: 
             painter.setPen(get_pen(4, 'red'))
-            self.label_result.setText("Результат: Точка НЕ входит в многоугольник!")
+            self.label_result.setText("Точка НЕ входит в многоугольник!")
         else:
             painter.setPen(get_pen(4, 'green'))
-            self.label_result.setText("Результат: Точка входит в многоугольник!")
+            self.label_result.setText("Точка входит в многоугольник!")
         painter.drawPoint(x, y)
 
         self.update()
