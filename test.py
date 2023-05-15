@@ -1,8 +1,7 @@
 import sys
-import numpy as np
+import sympy as sp
 import random as rnd
 import pyqtgraph as pg
-from scipy.interpolate import CubicSpline
 from PyQt5 import QtWidgets, QtCore, QtGui
 
 class Window(QtWidgets.QWidget):
@@ -68,12 +67,43 @@ class Window(QtWidgets.QWidget):
         if not Window.points:
             self.label_info.setText("Постройте ломаную линию!")
             return
-        # Получаем новые координаты x y, отображаем их
-        cubic_spline = CubicSpline(Window.points[0], Window.points[1])
-        count_points = self.slider_dots.value()
-        x_new = np.linspace(1, count_points, count_points*20)
-        y_new = cubic_spline(x_new)
-        self.graph_widget.plot(x_new, y_new, pen=pg.mkPen(color="red"))
+        points = [1, 2, 4, 7], [2, 3, 1, 4]
+        diff1, diff2 = [], []
+        S1, S2 = [], []
+
+        for i in range(len(points[0])-1):
+            S = f'a{i}+b{i}*(x-x0)+c{i}*(x-x0)**2+d{i}*((x-x0)**3)'
+            S = S.replace('x0', f'{points[0][i]}')
+            diff1.append(sp.diff(S, 'x'))
+            diff2.append(sp.diff(diff1[-1], 'x'))
+
+            tempS1 = S.replace('x', f'{points[0][i]}')
+            tempS2 = S.replace('x', f'{points[0][i+1]}')
+            S1.append(sp.simplify(tempS1) - points[1][i])
+            S2.append(sp.simplify(tempS2) - points[1][i+1])
+            #print(S, S1[i], S2[i])
+
+        eq1, eq2 = [], []   
+        for i in range(len(diff1)-1):
+            f1 = diff1[i] - 1 * diff1[i+1]
+            f2 = diff2[i] - 1 * diff2[i+1]
+            f1 = str(f1).replace('x', str(points[0][i+1]))
+            f2 = str(f2).replace('x', str(points[0][i+1]))
+            eq1.append(sp.simplify(f1))
+            eq2.append(sp.simplify(f2))
+            #print('eq', eq1[i], eq2[i])
+
+        last1 = str(diff2[0]).replace('x', str(points[0][0]))
+        last2 = str(diff2[-1]).replace('x', str(points[0][-1]))
+        last1 = sp.simplify(last1)
+        last2 = sp.simplify(last2)
+        #print('last', last1, last2)
+
+        print(S1, 'XXX', S2)
+        print(eq1, 'XXX', eq2)
+        print(last1, 'XXX', last2)
+
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)  # новый экземпляр QApplication
